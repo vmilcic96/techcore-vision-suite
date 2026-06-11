@@ -3,9 +3,14 @@ import { useState, type FormEvent } from "react";
 import {
   Wrench, Globe, Network, ShieldCheck, ShoppingCart, Headphones,
   Monitor, Laptop, Keyboard, Gamepad2, Router, Cpu,
-  Menu, X, MapPin, Mail, Phone, Check, Facebook, Instagram, Linkedin, Github, ArrowRight, Sparkles,
+  Menu, X, MapPin, Mail, Phone, Check, Facebook, Instagram, Linkedin, Github, ArrowRight, Sparkles, MessageCircle, PhoneCall,
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const PHONE_DISPLAY = "+381 61 299 1609";
+const PHONE_TEL = "+381612991609";
+const WHATSAPP_URL = "https://wa.me/381612991609";
 
 import heroPc from "@/assets/hero-pc.jpg";
 import prodDesktop from "@/assets/prod-desktop.jpg";
@@ -75,6 +80,27 @@ const packages = [
 
 const galleryImgs = [gallery1, gallery2, gallery3, gallery4, prodKeyboard, prodNetwork];
 
+const team = [
+  {
+    name: "Luka Stevanović",
+    role: "IT Support Specialist",
+    desc: "Specijalista za održavanje računara, mreža i korisničku podršku.",
+    initials: "LS",
+  },
+  {
+    name: "Anita Jovanović",
+    role: "Customer Support Manager",
+    desc: "Zadužena za komunikaciju sa klijentima i koordinaciju IT usluga.",
+    initials: "AJ",
+  },
+  {
+    name: "Lazar Stavlić",
+    role: "System Administrator",
+    desc: "Administracija servera, bezbednost sistema i IT infrastruktura.",
+    initials: "LS",
+  },
+];
+
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -87,6 +113,7 @@ function HomePage() {
       <Services />
       <Products />
       <Gallery />
+      <Team />
       <Packages />
       <Contact />
       <Footer />
@@ -102,6 +129,7 @@ function Nav({ menuOpen, setMenuOpen }: { menuOpen: boolean; setMenuOpen: (v: bo
     { href: "#usluge", label: "Usluge" },
     { href: "#proizvodi", label: "Proizvodi" },
     { href: "#galerija", label: "Galerija" },
+    { href: "#tim", label: "Tim" },
     { href: "#paketi", label: "Paketi" },
     { href: "#kontakt", label: "Kontakt" },
   ];
@@ -355,6 +383,45 @@ function Gallery() {
   );
 }
 
+/* ---------------- TEAM ---------------- */
+
+function Team() {
+  return (
+    <section id="tim" className="py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="mx-auto max-w-2xl text-center">
+          <SectionLabel>Naš tim</SectionLabel>
+          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Ljudi iza <span className="gradient-text">TechCore-a</span></h2>
+          <p className="mt-4 text-muted-foreground">Iskusan tim koji svakodnevno održava IT sisteme naših klijenata.</p>
+        </div>
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {team.map((m) => (
+            <article key={m.name} className="glass glass-hover group rounded-3xl p-7 text-center">
+              <div className="relative mx-auto h-24 w-24">
+                <div className="absolute inset-0 -z-10 rounded-full bg-gradient-to-tr from-primary/40 to-accent/40 blur-xl" />
+                <div className="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-primary/30 to-accent/30 ring-1 ring-white/15">
+                  <span className="font-display text-2xl font-bold gradient-text">{m.initials}</span>
+                </div>
+              </div>
+              <h3 className="mt-5 font-display text-lg font-semibold">{m.name}</h3>
+              <p className="mt-1 text-sm gradient-text font-medium">{m.role}</p>
+              <p className="mt-3 text-sm text-muted-foreground">{m.desc}</p>
+              <div className="mt-5 flex justify-center gap-2">
+                <a href="#kontakt" aria-label="Email" className="grid h-9 w-9 place-items-center rounded-xl btn-outline-glow">
+                  <Mail className="h-4 w-4" />
+                </a>
+                <a href="#" aria-label="LinkedIn" className="grid h-9 w-9 place-items-center rounded-xl btn-outline-glow">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------------- PACKAGES ---------------- */
 
 function Packages() {
@@ -415,9 +482,10 @@ function Packages() {
 function Contact() {
   const [loading, setLoading] = useState(false);
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formEl = e.currentTarget;
+    const form = new FormData(formEl);
     const name = String(form.get("name") || "").trim();
     const email = String(form.get("email") || "").trim();
     const phone = String(form.get("phone") || "").trim();
@@ -428,11 +496,19 @@ function Contact() {
       toast.error("Polje je predugačko."); return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Poruka poslata! Javljamo se u najkraćem roku.");
-      (e.target as HTMLFormElement).reset();
-    }, 700);
+    const { error } = await supabase.from("kontakt_poruke").insert({
+      ime: name,
+      email,
+      telefon: phone || null,
+      poruka: message,
+    });
+    setLoading(false);
+    if (error) {
+      toast.error("Greška pri slanju poruke. Pokušajte ponovo.");
+      return;
+    }
+    toast.success("Poruka poslata! Javljamo se u najkraćem roku.");
+    formEl.reset();
   }
 
   return (
@@ -446,14 +522,26 @@ function Contact() {
 
             <div className="mt-8 space-y-3">
               <InfoRow icon={MapPin} title="Adresa" value="Knez Mihailova 12, 11000 Beograd" />
-              <InfoRow icon={Phone} title="Telefon" value="+381 11 123 4567" />
+              <a href={`tel:${PHONE_TEL}`} className="block">
+                <InfoRow icon={Phone} title="Telefon" value={PHONE_DISPLAY} />
+              </a>
               <InfoRow icon={Mail} title="Email" value="info@techcore.rs" />
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <a href={`tel:${PHONE_TEL}`} className="inline-flex items-center justify-center gap-2 rounded-xl btn-hero px-5 py-3 text-sm font-semibold">
+                <PhoneCall className="h-4 w-4" /> Pozovi odmah
+              </a>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl btn-outline-glow px-5 py-3 text-sm font-semibold">
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </a>
             </div>
 
             <div className="mt-6 h-72 overflow-hidden rounded-2xl glass p-1">
               <Map />
             </div>
           </div>
+
 
           <form onSubmit={onSubmit} className="glass rounded-3xl p-6 sm:p-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -535,7 +623,7 @@ function Footer() {
           <h4 className="font-display text-sm font-semibold">Kontakt</h4>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>Knez Mihailova 12, Beograd</li>
-            <li>+381 11 123 4567</li>
+            <li><a href={`tel:${PHONE_TEL}`} className="hover:text-foreground transition">{PHONE_DISPLAY}</a></li>
             <li>info@techcore.rs</li>
           </ul>
         </div>
