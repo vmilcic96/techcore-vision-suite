@@ -80,6 +80,27 @@ const packages = [
 
 const galleryImgs = [gallery1, gallery2, gallery3, gallery4, prodKeyboard, prodNetwork];
 
+const team = [
+  {
+    name: "Luka Stevanović",
+    role: "IT Support Specialist",
+    desc: "Specijalista za održavanje računara, mreža i korisničku podršku.",
+    initials: "LS",
+  },
+  {
+    name: "Anita Jovanović",
+    role: "Customer Support Manager",
+    desc: "Zadužena za komunikaciju sa klijentima i koordinaciju IT usluga.",
+    initials: "AJ",
+  },
+  {
+    name: "Lazar Stavlić",
+    role: "System Administrator",
+    desc: "Administracija servera, bezbednost sistema i IT infrastruktura.",
+    initials: "LS",
+  },
+];
+
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
