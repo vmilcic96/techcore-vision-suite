@@ -3,9 +3,14 @@ import { useState, type FormEvent } from "react";
 import {
   Wrench, Globe, Network, ShieldCheck, ShoppingCart, Headphones,
   Monitor, Laptop, Keyboard, Gamepad2, Router, Cpu,
-  Menu, X, MapPin, Mail, Phone, Check, Facebook, Instagram, Linkedin, Github, ArrowRight, Sparkles,
+  Menu, X, MapPin, Mail, Phone, Check, Facebook, Instagram, Linkedin, Github, ArrowRight, Sparkles, MessageCircle, PhoneCall,
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const PHONE_DISPLAY = "+381 61 299 1609";
+const PHONE_TEL = "+381612991609";
+const WHATSAPP_URL = "https://wa.me/381612991609";
 
 import heroPc from "@/assets/hero-pc.jpg";
 import prodDesktop from "@/assets/prod-desktop.jpg";
