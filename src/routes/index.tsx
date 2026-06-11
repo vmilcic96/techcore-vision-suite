@@ -623,7 +623,7 @@ function Footer() {
           <h4 className="font-display text-sm font-semibold">Kontakt</h4>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>Knez Mihailova 12, Beograd</li>
-            <li>+381 11 123 4567</li>
+            <li><a href={`tel:${PHONE_TEL}`} className="hover:text-foreground transition">{PHONE_DISPLAY}</a></li>
             <li>info@techcore.rs</li>
           </ul>
         </div>
