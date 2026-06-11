@@ -482,9 +482,10 @@ function Packages() {
 function Contact() {
   const [loading, setLoading] = useState(false);
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formEl = e.currentTarget;
+    const form = new FormData(formEl);
     const name = String(form.get("name") || "").trim();
     const email = String(form.get("email") || "").trim();
     const phone = String(form.get("phone") || "").trim();
@@ -495,11 +496,19 @@ function Contact() {
       toast.error("Polje je predugačko."); return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Poruka poslata! Javljamo se u najkraćem roku.");
-      (e.target as HTMLFormElement).reset();
-    }, 700);
+    const { error } = await supabase.from("kontakt_poruke").insert({
+      ime: name,
+      email,
+      telefon: phone || null,
+      poruka: message,
+    });
+    setLoading(false);
+    if (error) {
+      toast.error("Greška pri slanju poruke. Pokušajte ponovo.");
+      return;
+    }
+    toast.success("Poruka poslata! Javljamo se u najkraćem roku.");
+    formEl.reset();
   }
 
   return (
@@ -513,14 +522,26 @@ function Contact() {
 
             <div className="mt-8 space-y-3">
               <InfoRow icon={MapPin} title="Adresa" value="Knez Mihailova 12, 11000 Beograd" />
-              <InfoRow icon={Phone} title="Telefon" value="+381 11 123 4567" />
+              <a href={`tel:${PHONE_TEL}`} className="block">
+                <InfoRow icon={Phone} title="Telefon" value={PHONE_DISPLAY} />
+              </a>
               <InfoRow icon={Mail} title="Email" value="info@techcore.rs" />
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <a href={`tel:${PHONE_TEL}`} className="inline-flex items-center justify-center gap-2 rounded-xl btn-hero px-5 py-3 text-sm font-semibold">
+                <PhoneCall className="h-4 w-4" /> Pozovi odmah
+              </a>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl btn-outline-glow px-5 py-3 text-sm font-semibold">
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </a>
             </div>
 
             <div className="mt-6 h-72 overflow-hidden rounded-2xl glass p-1">
               <Map />
             </div>
           </div>
+
 
           <form onSubmit={onSubmit} className="glass rounded-3xl p-6 sm:p-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
