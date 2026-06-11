@@ -129,6 +129,7 @@ function Nav({ menuOpen, setMenuOpen }: { menuOpen: boolean; setMenuOpen: (v: bo
     { href: "#usluge", label: "Usluge" },
     { href: "#proizvodi", label: "Proizvodi" },
     { href: "#galerija", label: "Galerija" },
+    { href: "#tim", label: "Tim" },
     { href: "#paketi", label: "Paketi" },
     { href: "#kontakt", label: "Kontakt" },
   ];
