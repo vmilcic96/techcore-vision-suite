@@ -113,6 +113,7 @@ function HomePage() {
       <Services />
       <Products />
       <Gallery />
+      <Team />
       <Packages />
       <Contact />
       <Footer />
